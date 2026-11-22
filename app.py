@@ -18,4 +18,5 @@ if uploaded_file is not None:
     except ValueError as error:
         st.error(str(error))
     else: st.metric("Rows needing review", f"{len(review_rows):,}")
+    st.caption(f"Showing {min(100, len(review_rows)):,} of {len(review_rows):,} flagged rows.")
     st.dataframe(review_rows.head(100))

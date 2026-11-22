@@ -1,4 +1,25 @@
 import pandas as pd
+import csv
+import json
+
+def build_audit_summary(review_csv_path):
+    summary = {
+        "rows_needing_review": 0,
+        "duplicate_rows": 0,
+        "missing_price_rows": 0,
+        "incorrect_totals": 0,
+    }
+
+    with open(review_csv_path, newline="", encoding = "utf-8") as review_file:
+        for row in csv.DictReader(review_file):
+            summary["rows_needing_review"] += 1
+            summary["duplicate_rows"] += row["duplicate"].strip().lower() == "true"
+            summary["missing_price_rows"] += row["missing_price"].strip().lower() == "true"
+            summary["incorrect_totals"] += row["wrong_total"].strip().lower() == "true"
+    return summary
+
+
+
 def normalize_header(header):
     words = header.strip().lower().replace("-", " ").split()
     return "_".join(words)
@@ -87,7 +108,8 @@ def run_sales_checks(sales_data):
     return checked_sales, is_duplicate, is_missing_price, is_wrong_total
 
 def main():
-    sales = pd.read_csv("data/restaurant_sales_stress_test.csv") 
+    sales = pd.read_csv("data/restaurant_sales_stress_test.csv")
+    sales = map_sales_columns(sales)
     print("Headers after mapping:", list(sales.columns))
 
     for header in sales.columns:
@@ -97,8 +119,6 @@ def main():
     print(sales.head())
     duplicate_rows = sales[is_duplicate]
 
-    is_duplicate = find_duplicate_flags(sales)
-
     print()
     print(duplicate_rows)
 
@@ -106,14 +126,9 @@ def main():
 
     print(f"Sales from duplicate rows: ${duplicate_total:,.2f}")
 
-    is_missing_price = sales["unit_price"].isna()
     print()
     print(sales[is_missing_price])
-
-
-    expected_total, difference, is_wrong_total = check_line_totals(sales)
-    sales["expected_total"] = expected_total
-    sales["difference"] = difference
+    
     print()
     print(sales[["item", "quantity", "unit_price", "line_total", "expected_total"]])
 
@@ -139,6 +154,9 @@ def main():
 
     review_rows = build_review_table(sales, is_duplicate, is_missing_price, is_wrong_total)
     review_rows.to_csv("rows_needing_review.csv", index=False)
+
+    audit_summary = build_audit_summary("rows_needing_review.csv")
+    print(json.dumps(audit_summary, indent=2))
 
 if __name__ == "__main__":
     main()

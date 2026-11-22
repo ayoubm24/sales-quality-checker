@@ -1,0 +1,11 @@
+order_id,line_id,item,quantity,unit_price,line_total
+1042,1,Burger,1,18.00,18.00
+1042,2,Burger,1,18.00,18.00
+1042,3,Lemonade,2,4.00,8.00
+1043,1,Salad,3,8.00,24.00
+1043,2,Chowder,1,7.00,7.00
+1043,3,Iced tea,2,3.00,6.00
+1044,1,Fish tacos,1,15.00,15.00
+1044,2,Fries,1,5.00,5.00
+1044,3,Pasta,2,16.00,32.00
+1045,1,Brownie,1,6.00,6.00
